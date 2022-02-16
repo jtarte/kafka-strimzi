@@ -1,0 +1,15 @@
+once the cluster is configured 
+
+Get the host
+oc get routes my-cluster-kafka-bootstrap -o=jsonpath='{.status.ingress[0].host}{"\n"}'
+
+Get the CA certificate
+oc extract secret/my-cluster-cluster-ca-cert --keys=ca.crt --to=- > ca.crt
+
+Create the trust store 
+keytool -import -trustcacerts -alias root -file ca.crt -keystore truststore.jks -storepass password -noprompt
+
+ecrire des messages dans un topic
+/usr/local/opt/kafka/bin/kafka-console-producer --broker-list my-cluster-test-kafka-bootstrap-my-kafka.apps-crc.testing:443 --producer-property security.protocol=SSL --producer-property ssl.truststore.password=password --producer-property ssl.truststore.location=./truststore.jks --topic my-topic   
+
+lire les messages 
